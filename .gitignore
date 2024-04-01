@@ -1,0 +1,6 @@
+__pycache__
+*.pt
+*.gz
+chenyaofo_pytorch-cifar-models_master
+cifar-10-batches-py
+dtd/

@@ -37,7 +37,7 @@ def get_first_layer_weights(model):
 def fit_formula_to_model(
     model_energy_profile, lambdas, lambda_squared, num_images
 ):
-    eta = 0.0000001  # learning rate
+    eta = 10e-8  # learning rate
     eta_lambda_squared = (1 / (2 * num_images)) * eta * lambda_squared
     max_correlation, best_profile, best_iteration = 0, 0, 0
     pbar = tqdm(range(10000, 5000000, 250))
@@ -117,7 +117,7 @@ def train_model(
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     loss = torch.nn.CrossEntropyLoss()
 
-    acc_metric = Accuracy(task="multiclass", num_classes=10).to("cuda")
+    acc_metric = Accuracy(task="multiclass", num_classes=10)
     test_acc = None
     for epoch in pbar:
         epoch_loss = 0
