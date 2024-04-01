@@ -79,37 +79,80 @@ def calc_energy_profile(
     return energy_profile
 
 
-def get_dataloader(use_random_labels, train=True):
-    transforms = T.Compose(
+def get_transforms(data_name):
+    if data_name ==' cifar10':
+        transforms = T.Compose(
         [
             T.ToTensor(),
             T.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2471, 0.2435, 0.2616)),
         ]
-    )
-    batch_size = 256
-    dataset = torchvision.datasets.CIFAR10(cur_dir, train=train, transform=transforms)
+        )
+    elif data_name == 'dtd':
+        transforms = T.Compose(
+            [
+            T.Resize((124,124)),
+            T.ToTensor(),
+            T.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2471, 0.2435, 0.2616)),
+        ]
+        )
+        
+    return transforms
 
-    if use_random_labels:
-        shuffle(dataset.targets)
+def get_dataset(data_name,transforms,split,train=True):
+    if data_name == 'cifar10':
+        dataset = torchvision.datasets.CIFAR10(cur_dir, train=train, transform=transforms)
+    elif data_name == 'dtd':
+        dataset = torchvision.datasets.DTD(cur_dir, split=split, transform=transforms)
+    
+    return dataset
 
-    loader = torch.utils.data.DataLoader(
+def prepare_dataloader(data_name,dataset,train):
+    if data_name ==' cifar10':
+        batch_size = 256
+        loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=batch_size if train else 10000,
         num_workers=3,
         shuffle=True,
         drop_last=True,
         pin_memory=True,
-    )
+        )
+    elif data_name == 'dtd':
+        batch_size = 64
+        loader = torch.utils.data.DataLoader(
+        dataset,
+        batch_size=batch_size if train else 5000,
+        num_workers=3,
+        shuffle=True,
+        drop_last=True,
+        pin_memory=True,
+        )
     return loader
 
+def get_dataloader(data_name,use_random_labels, train=True):
+    transforms = get_transforms(data_name)
+    
+    dataset = get_dataset(data_name,transforms,train)
+    if use_random_labels:
+        shuffle(dataset.targets)
+    loader = prepare_dataloader(data_name,dataset,train)
+    
+    return loader
+
+def get_num_classes(data_name):
+    if data_name == 'cifar10':
+        num_classes=10
+    elif data_name == 'dtd':
+        num_classes=47
+    return num_classes
 
 def train_model(
-    model, train_loader, test_loader, num_epochs=100, use_cuda=False, lr=0.01
+    model, data_name,train_loader, test_loader, num_epochs=100, use_cuda=False, lr=0.01
 ):
     use_cuda = torch.cuda.is_available()
+    num_classes = get_num_classes(data_name)
+
     losses = []
-    train_accs = []
-    test_accs = []
     pbar = tqdm(range(num_epochs))
 
     if use_cuda:
@@ -117,7 +160,7 @@ def train_model(
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     loss = torch.nn.CrossEntropyLoss()
 
-    acc_metric = Accuracy(task="multiclass", num_classes=10)
+    acc_metric = Accuracy(task="multiclass", num_classes=num_classes)
     test_acc = None
     for epoch in pbar:
         epoch_loss = 0
@@ -161,9 +204,7 @@ def train_model(
                 "epoch": epoch,
                 "train loss": epoch_loss / epochlen,
                 "train acc": avgacc.item() / epochlen,
-                "test_acc": (test_acc.item() / test_epoch_len)
-                if test_acc is not None
-                else None,
+                "test_acc": (avg_test_acc.item() / test_epoch_len)
             }
         )
 
