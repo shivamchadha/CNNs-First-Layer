@@ -1,10 +1,9 @@
 # What do CNNs Learn in the First Layer and Why? A Linear Systems Perspective
 
-This repository is the official implementation of of our paper ["What do CNNs Learn in the First Layer and Why? A Linear Systems Perspective"](https://arxiv.org/abs/2206.02454), by Rhea Chowers and Yair Weiss, published in [ICML 2023](https://proceedings.mlr.press/v202/chowers23a.html).
+This repository is the reproduction of the paper ["What do CNNs Learn in the First Layer and Why? A Linear Systems Perspective"](https://arxiv.org/abs/2206.02454), by Rhea Chowers and Yair Weiss, published in [ICML 2023](https://proceedings.mlr.press/v202/chowers23a.html).
 
 
-![fig](figures/true_vs_random.png)
-<p align="center" style="text-align: center;">VGG trained with true and random labels learn similar energy profiles in their first layer.</p>
+We use the original code to reproduce the results for CIFAR10. We add small changes to the code and also provide a summary of the paper. We tried to get the results for [DTD dataset](https://paperswithcode.com/dataset/dtd) but could not due to lack of compute (we could not perform the pca decompistion of the patches).
 
 # Summary
 In this paper, we adopt the linear systems perspective and consider the first layer as a filter bank and measure the sensitivity of the bank to different spatial
@@ -16,10 +15,11 @@ We show that trained networks learn consistent representations that are far from
 <p align="center" style="text-align: center;">Examples of fitting the formula to different networks trained on different datasets (correlation in parenthesis). Overall, the formula captures the trend learned in the first layer of the networks.</p>
 
 # Code
-This repository contains two notebooks - one for fitting the theoretical profile to energy profiles of trained CNNs, and the other for comparing true and random label trained models. The utils file contains code for calculating the energy profile.
+This repository contains three notebooks - one for fitting the theoretical profile to energy profiles of trained CNNs, one for the other for comparing true and random label trained models, and one for our reproduction. The utils file contains code for calculating the energy profile. We add pca.py to calcualte pca seprately, and one pdf of our summary of the paper. 
 
 # Citation
 ```
+Please cite the original authors of the paper:  
 
 @InProceedings{pmlr-v202-chowers23a,
   title = 	 {What do {CNN}s Learn in the First Layer and Why? {A} Linear Systems Perspective},
